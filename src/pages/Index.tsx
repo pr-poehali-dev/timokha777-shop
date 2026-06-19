@@ -35,6 +35,7 @@ interface Product {
 const PRODUCTS: Product[] = [
   { id: 1, name: 'Brawl Pass', price: 1100, icon: 'Ticket', tag: 'ХИТ', glow: 'from-primary to-amber-500' },
   { id: 2, name: 'Brawl Pass Plus', price: 1430, icon: 'Crown', tag: 'ТОП', glow: 'from-secondary to-fuchsia-500' },
+  { id: 12, name: 'Про Пасс', price: 3000, icon: 'ShieldCheck', tag: 'PRO', glow: 'from-primary to-yellow-400' },
   { id: 3, name: '30 гемов', price: 230, icon: 'Gem', glow: 'from-accent to-cyan-400' },
   { id: 4, name: '80 гемов', price: 560, icon: 'Gem', glow: 'from-accent to-cyan-400' },
   { id: 5, name: '170 гемов', price: 1120, icon: 'Gem', glow: 'from-accent to-cyan-400' },
