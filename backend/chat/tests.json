@@ -1,0 +1,22 @@
+{
+  "tests": [
+    {
+      "name": "GET messages with session_id",
+      "method": "GET",
+      "path": "/?session_id=test-session-123",
+      "expectedStatus": 200,
+      "expectedBody": {"messages": []},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "POST send message",
+      "method": "POST",
+      "path": "/?session_id=test-session-123",
+      "headers": {"Content-Type": "application/json"},
+      "body": "{\"message\": \"Привет, хочу заказать Brawl Pass\", \"sender\": \"user\"}",
+      "expectedStatus": 200,
+      "expectedBody": {"id": 1},
+      "bodyMatcher": "partial"
+    }
+  ]
+}
