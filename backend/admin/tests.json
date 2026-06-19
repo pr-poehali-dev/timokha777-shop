@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "name": "GET refunds unauthorized",
+      "method": "GET",
+      "path": "/?section=refunds",
+      "expectedStatus": 403,
+      "expectedBody": {"error": "forbidden"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "GET refunds authorized",
+      "method": "GET",
+      "path": "/?section=refunds&pwd=timoha777",
+      "expectedStatus": 200,
+      "expectedBody": {},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "GET chats authorized",
+      "method": "GET",
+      "path": "/?section=chats&pwd=timoha777",
+      "expectedStatus": 200,
+      "expectedBody": {},
+      "bodyMatcher": "partial"
+    }
+  ]
+}
