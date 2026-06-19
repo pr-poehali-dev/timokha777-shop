@@ -303,6 +303,18 @@ const Index = () => {
                   className="bg-input border-border h-11 rounded-xl"
                 />
               </div>
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 space-y-2">
+                <p className="text-sm font-bold text-amber-500 flex items-center gap-2">
+                  <Icon name="AlertCircle" size={16} /> Важно при оплате
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  После нажатия кнопки откроется страница оплаты. В поле <span className="font-bold text-foreground">«Сообщение»</span> напиши что ты заказываешь, например:
+                </p>
+                <div className="bg-muted rounded-lg px-3 py-2 text-sm font-mono text-foreground">
+                  {buyProduct?.name} | {email || 'твоя почта'}
+                </div>
+                <p className="text-xs text-muted-foreground">Без сообщения заказ не сможет быть выполнен!</p>
+              </div>
               <Button
                 className="w-full h-12 rounded-xl text-base font-bold bg-gradient-to-r from-primary to-amber-500 text-background hover:opacity-90"
                 onClick={handlePay}
