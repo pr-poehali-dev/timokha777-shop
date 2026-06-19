@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -22,6 +22,7 @@ const HERO_IMG =
   'https://cdn.poehali.dev/projects/510e6d66-95ba-4972-bdd6-f06b4681996d/files/c03d9d48-71e8-4fe6-8f28-c9cb72ae5f0c.jpg';
 
 const DONATE_URL = 'https://www.donationalerts.com/r/77_Timoha';
+const REVIEWS_URL = 'https://functions.poehali.dev/2f86437d-f217-49fd-8eaf-4fa28eb960de';
 
 interface Product {
   id: number;
@@ -54,12 +55,53 @@ const REVIEWS = [
   { name: 'Дима', text: 'Сначала боялся, но всё честно. 2000 гемов получил.', rating: 5 },
 ];
 
+interface DBReview {
+  id: number;
+  name: string;
+  text: string;
+  rating: number;
+  created_at: string;
+}
+
 const Index = () => {
   const [cart, setCart] = useState<Product[]>([]);
   const [buyProduct, setBuyProduct] = useState<Product | null>(null);
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [orderStatus, setOrderStatus] = useState<'idle' | 'processing'>('idle');
+
+  const [dbReviews, setDbReviews] = useState<DBReview[]>([]);
+  const [reviewName, setReviewName] = useState('');
+  const [reviewText, setReviewText] = useState('');
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewHover, setReviewHover] = useState(0);
+  const [reviewLoading, setReviewLoading] = useState(false);
+
+  useEffect(() => {
+    fetch(REVIEWS_URL)
+      .then(r => r.json())
+      .then(d => setDbReviews(d.reviews || []));
+  }, []);
+
+  const submitReview = async () => {
+    if (!reviewName.trim() || !reviewText.trim()) {
+      toast.error('Заполни имя и текст отзыва');
+      return;
+    }
+    setReviewLoading(true);
+    await fetch(REVIEWS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: reviewName.trim(), text: reviewText.trim(), rating: reviewRating }),
+    });
+    const data = await fetch(REVIEWS_URL).then(r => r.json());
+    setDbReviews(data.reviews || []);
+    setReviewName('');
+    setReviewText('');
+    setReviewRating(5);
+    setReviewLoading(false);
+    toast.success('Спасибо за отзыв!');
+  };
 
   const addToCart = (p: Product) => {
     setCart((c) => [...c, p]);
@@ -242,23 +284,76 @@ const Index = () => {
           <h2 className="font-display text-4xl md:text-5xl mb-3">Отзывы <span className="text-gradient">покупателей</span></h2>
           <p className="text-muted-foreground">Нам доверяют сотни игроков</p>
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {REVIEWS.map((r, i) => (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+          {[...REVIEWS, ...dbReviews].map((r, i) => (
             <div key={i} className="bg-card border border-border rounded-2xl p-5">
-              <div className="flex gap-1 mb-3 text-primary">
-                {Array.from({ length: r.rating }).map((_, j) => (
-                  <Icon key={j} name="Star" size={16} className="fill-primary" />
+              <div className="flex gap-1 mb-3">
+                {Array.from({ length: 5 }).map((_, j) => (
+                  <Icon key={j} name="Star" size={16} className={j < r.rating ? 'fill-primary text-primary' : 'text-muted-foreground'} />
                 ))}
               </div>
               <p className="text-sm mb-4 text-foreground/90">«{r.text}»</p>
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-sm font-bold">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-sm font-bold text-background">
                   {r.name[0]}
                 </div>
                 <span className="font-medium text-sm">{r.name}</span>
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Форма отзыва */}
+        <div className="max-w-lg mx-auto bg-card border border-border rounded-2xl p-6">
+          <h3 className="font-display text-xl mb-4">Оставить отзыв</h3>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">Твоё имя</label>
+              <Input
+                placeholder="Например: Артём"
+                value={reviewName}
+                onChange={e => setReviewName(e.target.value)}
+                className="bg-input border-border h-11 rounded-xl"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">Оценка</label>
+              <div className="flex gap-2">
+                {[1, 2, 3, 4, 5].map(star => (
+                  <button
+                    key={star}
+                    onMouseEnter={() => setReviewHover(star)}
+                    onMouseLeave={() => setReviewHover(0)}
+                    onClick={() => setReviewRating(star)}
+                    className="transition-transform hover:scale-125"
+                  >
+                    <Icon
+                      name="Star"
+                      size={28}
+                      className={(reviewHover || reviewRating) >= star ? 'fill-primary text-primary' : 'text-muted-foreground'}
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">Отзыв</label>
+              <textarea
+                placeholder="Расскажи как всё прошло..."
+                value={reviewText}
+                onChange={e => setReviewText(e.target.value)}
+                rows={3}
+                className="w-full bg-input border border-border rounded-xl px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+            </div>
+            <Button
+              onClick={submitReview}
+              disabled={reviewLoading}
+              className="w-full h-11 rounded-xl font-bold bg-gradient-to-r from-primary to-amber-500 text-background hover:opacity-90"
+            >
+              {reviewLoading ? 'Отправляю...' : 'Отправить отзыв'}
+            </Button>
+          </div>
         </div>
       </section>
 

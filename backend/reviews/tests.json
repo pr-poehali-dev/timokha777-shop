@@ -1,0 +1,22 @@
+{
+  "tests": [
+    {
+      "name": "GET reviews",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {"reviews": []},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "POST add review",
+      "method": "POST",
+      "path": "/?session_id=test",
+      "headers": {"Content-Type": "application/json"},
+      "body": "{\"name\": \"Тест\", \"text\": \"Отличный магазин!\", \"rating\": 5}",
+      "expectedStatus": 200,
+      "expectedBody": {"id": 1},
+      "bodyMatcher": "partial"
+    }
+  ]
+}
