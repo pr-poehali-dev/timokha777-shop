@@ -16,7 +16,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import Icon from '@/components/ui/icon';
-import { toast } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 
 const HERO_IMG =
   'https://cdn.poehali.dev/projects/510e6d66-95ba-4972-bdd6-f06b4681996d/files/c03d9d48-71e8-4fe6-8f28-c9cb72ae5f0c.jpg';
