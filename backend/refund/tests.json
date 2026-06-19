@@ -1,0 +1,14 @@
+{
+  "tests": [
+    {
+      "name": "POST submit refund",
+      "method": "POST",
+      "path": "/",
+      "headers": {"Content-Type": "application/json"},
+      "body": "{\"name\": \"Артём\", \"email\": \"test@mail.ru\", \"order_info\": \"Brawl Pass 500 гемов\", \"reason\": \"Не пришли гемы\"}",
+      "expectedStatus": 200,
+      "expectedBody": {"success": true},
+      "bodyMatcher": "partial"
+    }
+  ]
+}

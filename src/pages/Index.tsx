@@ -70,6 +70,29 @@ const Index = () => {
   const [code, setCode] = useState('');
   const [orderStatus, setOrderStatus] = useState<'idle' | 'processing'>('idle');
 
+  const [refundOpen, setRefundOpen] = useState(false);
+  const [refundName, setRefundName] = useState('');
+  const [refundEmail, setRefundEmail] = useState('');
+  const [refundOrder, setRefundOrder] = useState('');
+  const [refundReason, setRefundReason] = useState('');
+  const [refundLoading, setRefundLoading] = useState(false);
+  const [refundDone, setRefundDone] = useState(false);
+
+  const submitRefund = async () => {
+    if (!refundName.trim() || !refundEmail.trim() || !refundOrder.trim() || !refundReason.trim()) {
+      toast.error('Заполни все поля');
+      return;
+    }
+    setRefundLoading(true);
+    await fetch('https://functions.poehali.dev/686d3c07-e355-463c-a336-df1b75827b47', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: refundName.trim(), email: refundEmail.trim(), order_info: refundOrder.trim(), reason: refundReason.trim() }),
+    });
+    setRefundLoading(false);
+    setRefundDone(true);
+  };
+
   const [dbReviews, setDbReviews] = useState<DBReview[]>([]);
   const [reviewName, setReviewName] = useState('');
   const [reviewText, setReviewText] = useState('');
@@ -361,7 +384,12 @@ const Index = () => {
       <footer className="border-t border-border mt-10">
         <div className="container py-8 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <span className="font-display text-lg text-foreground">Тимоха<span className="text-primary">777</span>shop</span>
-          <span>© {new Date().getFullYear()} Все товары доставляются вручную</span>
+          <div className="flex items-center gap-4">
+            <button onClick={() => { setRefundOpen(true); setRefundDone(false); }} className="text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4">
+              Возврат
+            </button>
+            <span>© {new Date().getFullYear()} Все товары доставляются вручную</span>
+          </div>
         </div>
       </footer>
 
@@ -453,6 +481,62 @@ const Index = () => {
               </Button>
               <Button variant="ghost" className="w-full" onClick={() => setBuyProduct(null)}>
                 Закрыть
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Refund Dialog */}
+      <Dialog open={refundOpen} onOpenChange={(o) => { setRefundOpen(o); if (!o) setRefundDone(false); }}>
+        <DialogContent className="bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="font-display text-2xl">Заявка на возврат</DialogTitle>
+            <DialogDescription>
+              {refundDone ? 'Заявка принята — мы рассмотрим её в ближайшее время.' : 'Заполни форму и мы свяжемся с тобой.'}
+            </DialogDescription>
+          </DialogHeader>
+
+          {refundDone ? (
+            <div className="py-6 flex flex-col items-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
+                <Icon name="CheckCircle" size={36} className="text-primary" />
+              </div>
+              <p className="text-center text-muted-foreground text-sm">Заявка №{Date.now().toString().slice(-5)} отправлена. Ожидай ответа на почту.</p>
+              <Button className="w-full rounded-xl bg-gradient-to-r from-primary to-amber-500 text-background font-bold" onClick={() => setRefundOpen(false)}>
+                Закрыть
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-3 pt-1">
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Твоё имя</label>
+                <Input placeholder="Артём" value={refundName} onChange={e => setRefundName(e.target.value)} className="bg-input border-border rounded-xl h-11" />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Email для связи</label>
+                <Input placeholder="mail@example.com" value={refundEmail} onChange={e => setRefundEmail(e.target.value)} className="bg-input border-border rounded-xl h-11" />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Что купил и когда</label>
+                <Input placeholder="Brawl Pass, 15 июня" value={refundOrder} onChange={e => setRefundOrder(e.target.value)} className="bg-input border-border rounded-xl h-11" />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Причина возврата</label>
+                <textarea
+                  placeholder="Опиши ситуацию..."
+                  value={refundReason}
+                  onChange={e => setRefundReason(e.target.value)}
+                  rows={3}
+                  className="w-full bg-input border border-border rounded-xl px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary/50"
+                />
+              </div>
+              <Button
+                onClick={submitRefund}
+                disabled={refundLoading}
+                className="w-full h-11 rounded-xl font-bold bg-gradient-to-r from-primary to-amber-500 text-background hover:opacity-90"
+              >
+                {refundLoading ? 'Отправляю...' : 'Отправить заявку'}
               </Button>
             </div>
           )}
